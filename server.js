@@ -1,8 +1,8 @@
-var express = require('express');
-var app = express();
-var path = require('path');
-var fileUpload = require('express-fileupload');
-var fs = require('fs');
+const express = require('express');
+const app = express();
+const path = require('path');
+const fileUpload = require('express-fileupload');
+const fs = require('fs');
 
 app.use(fileUpload());
 
@@ -16,23 +16,23 @@ app.get('/', function(req, res) {
 	res.sendFile(path.join(__dirname, '/views', 'index.html'));
 });
 
-var AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 // AWS.config.loadFromPath('./config.json');
-var s3 = new AWS.S3();
-const bucketName = 'poc-worker-safety-bucket-17prxsi45gt4w';
+const s3 = new AWS.S3();
+const bucketName = process.env.BUCKET || 'poc-worker-safety-bucket-17prxsi45gt4w';
 
 app.post('/upload', function(req, res) {
 	if (!req.files) {
 		return res.status(400).send('No files were uploaded.');
 	}
 
-	var sampleFile = req.files.sampleFile;
+	const sampleFile = req.files.sampleFile;
 	
 	// TODO uuid
-	var newFileName = sampleFile.name.replace('.', `_${Date.now()}.`);
+	const newFileName = sampleFile.name.replace('.', `_${Date.now()}.`);
 
-	var keyName = `inbound/${newFileName}`;
-	var params = {Bucket: bucketName, Key: keyName, Body: sampleFile.data};
+	const keyName = `inbound/${newFileName}`;
+	const params = {Bucket: bucketName, Key: keyName, Body: sampleFile.data};
 	s3.putObject(params, function(err, data) {
 		if (err)
 			res.status(500).send(err);
